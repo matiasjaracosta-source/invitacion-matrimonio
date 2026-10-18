@@ -33,7 +33,7 @@ body{background:var(--paper);color:var(--ink);font-family:"Cormorant Garamond",G
 body.locked{overflow:hidden;height:100vh}
 img{max-width:100%;display:block}
 a{color:inherit}
-.paper-tex{position:fixed;inset:0;pointer-events:none;z-index:30;opacity:.5;mix-blend-mode:multiply;background-image:var(--grain)}
+body{background-image:var(--grain)}
 #fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:80}
 @keyframes shine{to{background-position:200% center}}
 @keyframes blink{0%,100%{opacity:.45}50%{opacity:1}}
@@ -138,7 +138,7 @@ a{color:inherit}
 .cue i{display:block;width:1px;height:38px;margin:10px auto 0;background:linear-gradient(#fff,transparent);animation:drip 2.2s ease-in-out infinite;transform-origin:top}
 .done .cue{opacity:1}
 @keyframes drip{0%{transform:scaleY(0);opacity:1}70%{transform:scaleY(1);opacity:1}100%{transform:scaleY(1);opacity:0}}
-.replay{right:14px;top:14px;width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.6);background:rgba(20,30,50,.25);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 1s;backdrop-filter:blur(3px)}
+.replay{right:14px;top:14px;width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.6);background:rgba(20,30,50,.25);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 1s}
 .replay svg{width:18px;height:18px}
 .done .replay{opacity:.85;pointer-events:auto}
 .bridge{position:relative;height:190px;margin-top:-1px;background:linear-gradient(var(--g0,#7a8a5e) 0%,var(--g1,#879669) 34%,#b8c09f 66%,var(--paper) 100%)}
@@ -203,11 +203,11 @@ h2.title{font-family:"Pinyon Script";font-weight:400;font-size:clamp(48px,12vw,7
 #rsvp{padding-bottom:110px}
 .rsvp-box{position:relative;background:var(--forest);color:#efe8d3;padding:62px 24px 56px;max-width:640px;margin:0 auto;border-radius:4px;overflow:hidden;box-shadow:0 40px 70px -40px rgba(20,30,15,.85)}
 .rsvp-box::before{content:"";position:absolute;inset:10px;border:1px solid rgba(230,207,152,.5);pointer-events:none}
-.rsvp-box h2{font-family:"Pinyon Script";font-weight:400;font-size:clamp(50px,13vw,72px);line-height:1.05;background:var(--gold-grad);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 7s linear infinite}
-.rsvp-box p{color:#d9d3bd;font-size:19px;max-width:440px;margin:12px auto 0}
-.rsvp-box .deadline{font-family:Cinzel;letter-spacing:.28em;font-size:12px;color:var(--gold-l);margin-top:18px}
-.btn-rsvp{position:relative;display:inline-block;margin-top:30px;padding:18px 38px;font-family:Cinzel;font-size:14px;letter-spacing:.28em;text-transform:uppercase;text-decoration:none;color:var(--forest);background:var(--gold-grad);background-size:200% auto;animation:shine 5s linear infinite;border-radius:2px;box-shadow:0 10px 30px -10px rgba(230,207,152,.6);transition:transform .3s}
-.rsvp-note{font-size:16.5px!important;font-style:italic;color:#cfe0c4!important;margin-top:26px!important;line-height:1.5}
+.rsvp-box h2{font-family:"Pinyon Script";font-weight:400;font-size:clamp(50px,13vw,72px);line-height:1.05;color:#f7e7bd;text-shadow:0 2px 10px rgba(0,0,0,.25)}
+.rsvp-box p{color:#fbf7ec;font-size:clamp(18px,4.6vw,20px);line-height:1.6;max-width:460px;margin:14px auto 0}
+.rsvp-box .deadline{font-family:Cinzel;letter-spacing:.22em;font-size:13px;font-weight:600;color:#ffe7a6;margin-top:20px}
+.btn-rsvp{position:relative;display:inline-block;margin-top:30px;padding:18px 38px;font-family:Cinzel;font-size:14px;letter-spacing:.28em;text-transform:uppercase;text-decoration:none;color:#1d3a22;font-weight:600;background:var(--gold-grad);background-size:200% auto;animation:shine 5s linear infinite;border-radius:2px;box-shadow:0 10px 30px -10px rgba(230,207,152,.6);transition:transform .3s}
+.rsvp-note{font-size:17px!important;font-style:italic;color:#eef5e6!important;margin-top:26px!important;line-height:1.55}
 .btn-rsvp:hover{transform:translateY(-3px) scale(1.02)}
 .rsvp-box .sprig{opacity:.3}
 footer{position:relative;z-index:2;text-align:center;padding:24px 16px 64px;color:var(--ink-soft)}
@@ -218,11 +218,12 @@ footer .hash{font-family:Cinzel;letter-spacing:.25em;font-size:13px;color:var(--
 #music.playing svg{animation:spin 6s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 #music svg{width:20px;height:20px}
-.rv{opacity:0;transform:translateY(30px) scale(.985);filter:blur(10px);transition:opacity 1.4s ease,transform 1.4s cubic-bezier(.2,.8,.2,1),filter 1.6s ease}
+.rv{opacity:0;transform:translateY(26px);filter:blur(6px);transition:opacity 1.2s ease,transform 1.2s cubic-bezier(.2,.8,.2,1),filter 1.3s ease}
+@media (pointer:coarse),(max-width:700px){.rv{filter:none;transition:opacity 1s ease,transform 1s cubic-bezier(.2,.8,.2,1)}}
 .rv.in{opacity:1;transform:none;filter:none}
 .clarify img{will-change:filter,opacity,transform;-webkit-mask-image:radial-gradient(ellipse at 50% 55%,#000 calc(var(--r,30) * 1%),transparent calc(var(--r,30) * 1% + 22%));mask-image:radial-gradient(ellipse at 50% 55%,#000 calc(var(--r,30) * 1%),transparent calc(var(--r,30) * 1% + 22%))}
 /* ramitas que se mecen */
-.sprig{animation:sway 5.5s ease-in-out infinite alternate;transform-origin:50% 100%}
+.sprig{animation:sway 5.5s ease-in-out infinite alternate;transform-origin:50% 100%;will-change:transform}
 @keyframes sway{from{rotate:-5deg}to{rotate:5deg}}
 #leaves{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;opacity:0;transition:opacity 1.2s}
 .rv.d1{transition-delay:.15s}.rv.d2{transition-delay:.3s}.rv.d3{transition-delay:.45s}
@@ -363,7 +364,7 @@ footer .hash{font-family:Cinzel;letter-spacing:.25em;font-size:13px;color:var(--
   </defs>
 </svg>
 
-<div class="paper-tex"></div>
+
 <canvas id="fx"></canvas>
 <canvas id="leaves"></canvas>
 
@@ -410,11 +411,10 @@ footer .hash{font-family:Cinzel;letter-spacing:.25em;font-size:13px;color:var(--
   <div class="layer sky-night" id="skyNight"></div>
   <canvas id="stars"></canvas>
   <div class="sun" id="sun"><svg viewBox="-100 -100 200 200" aria-hidden="true">
-    <defs><radialGradient id="sg"><stop offset="0" stop-color="#fffbe8" stop-opacity="1"/><stop offset=".35" stop-color="#ffefc0" stop-opacity=".7"/><stop offset="1" stop-color="#ffe2a0" stop-opacity="0"/></radialGradient>
+    <defs><radialGradient id="sg"><stop offset="0" stop-color="#fffef8" stop-opacity="1"/><stop offset=".17" stop-color="#fffae6" stop-opacity="1"/><stop offset=".24" stop-color="#fff1c4" stop-opacity=".75"/><stop offset=".45" stop-color="#ffe6a8" stop-opacity=".3"/><stop offset="1" stop-color="#ffe2a0" stop-opacity="0"/></radialGradient>
     <radialGradient id="sr"><stop offset="0" stop-color="#ffd09a"/><stop offset=".4" stop-color="#ff9e6e" stop-opacity=".7"/><stop offset="1" stop-color="#ff8a60" stop-opacity="0"/></radialGradient></defs>
     <circle r="100" fill="url(#sg)"/><circle r="100" fill="url(#sr)" id="sunRed" opacity="0"/>
-    <circle r="30" fill="#fff7dc" stroke="#c9a35a" stroke-width="1.4" stroke-dasharray="60 6 30 4"/>
-    <g stroke="#cfa95c" stroke-width="1.3" stroke-linecap="round" opacity=".8" id="rays"></g>
+    <g id="rays" style="display:none"></g>
   </svg></div>
   <div class="clouds" id="clouds"><div class="clouds-drift">
     <div id="cloudsDay" class="raster"></div>
@@ -439,10 +439,6 @@ footer .hash{font-family:Cinzel;letter-spacing:.25em;font-size:13px;color:var(--
     <div class="caps">Nos casamos</div>
     <h1 class="big" id="names1">Mati <span class="amp">&amp;</span> Javi</h1>
     <div class="date" id="date1">06 · 03 · 2027</div>
-  </div>
-  <div class="phase p2" id="p2">
-    <div class="caps">Calera de Tango</div>
-    <div class="mid">Cuando el sol<br>se esconda…</div>
   </div>
   <div class="phase p3" id="p3">
     <div class="caps">comenzará nuestra historia</div>
@@ -573,7 +569,7 @@ const CONFIG = {
     { hora:"20:15", que:"Corte de torta",           nota:"",                               icono:"i-cake"    },
     { hora:"20:45", que:"Vals de los novios",       nota:"",                               icono:"i-waltz"   },
     { hora:"21:15", que:"¡Comienza la fiesta!",     nota:"Se abre la barra",               icono:"i-music"   },
-    { hora:"23:15", que:"Despedida de los novios",  nota:"",                               icono:"i-moon"    }
+    { hora:"23:30", que:"Despedida de los novios",  nota:"de 23:30 a 24:00 hrs",           icono:"i-moon"    }
   ],
   vestimenta: "Formal campestre",
   vestimentaNota: "Para ellas, solo vestidos largos.",
@@ -598,6 +594,8 @@ if(!guest.cupos && qs.get("cupos")) guest.cupos = +qs.get("cupos")||0;
 const plural = guest.cupos > 1 || /( y |,|&|familia)/i.test(guest.nombre);
 const t = (a,b) => plural ? b : a;
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const MOBILE = matchMedia("(pointer:coarse)").matches || innerWidth < 700;
+const DPR = MOBILE ? 1 : Math.min(2, devicePixelRatio||1);
 
 /* ================= texturas de papel (generadas) ================= */
 const uri = s => `url("data:image/svg+xml;charset=utf-8,${encodeURIComponent(s)}")`;
@@ -656,8 +654,8 @@ $("#personalMsg").textContent = t(
 if(guest.cupos>0){ $("#seats").hidden=false; $("#seatsN").textContent=guest.cupos; }
 $("#rsvpTitle").textContent = t("¿Nos acompañas?","¿Nos acompañan?");
 $("#rsvpMsg").textContent = t(
-  "Estamos preparando cada detalle pensando en quienes estarán con nosotros. Por eso, tu confirmación es muy importante: solo podremos contar con quienes confirmen antes de la fecha.",
-  "Estamos preparando cada detalle pensando en quienes estarán con nosotros. Por eso, su confirmación es muy importante: solo podremos contar con quienes confirmen antes de la fecha.");
+  `Estamos preparando cada detalle pensando en quienes estarán con nosotros, y para eso necesitamos saber que vienes. Te pedimos confirmar antes del ${CONFIG.plazoConfirmacion}: con mucho cariño, quienes no confirmen en ese plazo no podrán ser considerados en la celebración.`,
+  `Estamos preparando cada detalle pensando en quienes estarán con nosotros, y para eso necesitamos saber que vienen. Les pedimos confirmar antes del ${CONFIG.plazoConfirmacion}: con mucho cariño, quienes no confirmen en ese plazo no podrán ser considerados en la celebración.`);
 $("#rsvpNote").textContent = guest.cupos>0
   ? (guest.cupos>1 ? `Hemos reservado ${guest.cupos} lugares con mucho cariño para ustedes. Les pedimos, por favor, no sumar acompañantes adicionales.` : "Hemos reservado un lugar con mucho cariño para ti. Te pedimos, por favor, no sumar acompañantes adicionales.")
   : t("Esta invitación es personal. Con mucho cariño, te pedimos no sumar acompañantes adicionales.","Esta invitación es para las personas aquí nombradas. Con mucho cariño, les pedimos no sumar acompañantes adicionales.");
@@ -665,7 +663,7 @@ $("#rsvpDeadline").textContent = "CONFIRMA ANTES DEL "+CONFIG.plazoConfirmacion.
 $("#saveTxt").textContent = t("Agrega nuestro día a tu calendario y te lo recordaremos un día antes.","Agreguen nuestro día a su calendario y se lo recordaremos un día antes.");
 $("#dressNote").textContent = t("Te invitamos a llenar el día de colores de verano.","Los invitamos a llenar el día de colores de verano.");
 $("#grassTip").textContent = t("Celebraremos sobre pasto: te recomendamos taco ancho o plataforma.","Celebraremos sobre pasto: les recomendamos taco ancho o plataforma.");
-$("#giftMsg").textContent = t("Tu cariño ya es un regalo enorme. Si además quieres acompañarnos con un detalle para comenzar esta nueva etapa, preparamos con mucha ilusión una lista de novios.","Su cariño ya es un regalo enorme. Si además quieren acompañarnos con un detalle para comenzar esta nueva etapa, preparamos con mucha ilusión una lista de novios.");
+$("#giftMsg").textContent = t("Que nos acompañes es lo más lindo que podemos recibir. Y si te nace sumarte con un regalo, armamos con mucha ilusión una lista de novios con cosas para nuestro nuevo hogar y esta etapa que comenzamos juntos.","Que nos acompañen es lo más lindo que podemos recibir. Y si les nace sumarse con un regalo, armamos con mucha ilusión una lista de novios con cosas para nuestro nuevo hogar y esta etapa que comenzamos juntos.");
 $("#placeLine").textContent = CONFIG.lugar.toUpperCase();
 $("#mapBtn").href = CONFIG.mapa;
 $("#parkingTxt").textContent = CONFIG.estacionamiento;
@@ -740,10 +738,10 @@ function treesSVG(mode){ const c=h=>tint(h,mode);
 }
 // estrellas fijas
 const starC=$("#stars"), sp=$("#spark");
-function drawStars(){ const dpr=Math.min(2,devicePixelRatio||1), W=starC.clientWidth, H=starC.clientHeight; starC.width=W*dpr; starC.height=H*dpr;
+function drawStars(){ const dpr=DPR, W=starC.clientWidth, H=starC.clientHeight; starC.width=W*dpr; starC.height=H*dpr;
   const g=starC.getContext("2d"); g.scale(dpr,dpr); const n=Math.round(W*H/2400);
   for(let i=0;i<n;i++){ const x=Math.random()*W, y=Math.pow(Math.random(),1.5)*H*.72, r=Math.random()*1.2+.2; g.globalAlpha=.3+Math.random()*.6; g.fillStyle="#fff"; g.beginPath(); g.arc(x,y,r,0,7); g.fill(); } }
-function sizeSpark(){ const dpr=Math.min(2,devicePixelRatio||1); sp.width=sp.clientWidth*dpr; sp.height=sp.clientHeight*dpr; sp.getContext("2d").setTransform(dpr,0,0,dpr,0,0); }
+function sizeSpark(){ const dpr=DPR; sp.width=sp.clientWidth*dpr; sp.height=sp.clientHeight*dpr; sp.getContext("2d").setTransform(dpr,0,0,dpr,0,0); }
 let lastW=0; function sizeAll(){ if(innerWidth===lastW) return; lastW=innerWidth; drawStars(); sizeSpark(); }
 sizeAll(); addEventListener("resize", sizeAll);
 
@@ -756,7 +754,7 @@ function spawn(){ const W=sp.clientWidth, H=sp.clientHeight, nightish=Math.rando
 function star4(g,x,y,s,a){ g.save(); g.translate(x,y); g.rotate(a); g.beginPath();
   for(let k=0;k<4;k++){ g.rotate(Math.PI/2); g.moveTo(0,0); g.quadraticCurveTo(s*.16,s*.16,0,s); g.quadraticCurveTo(-s*.16,s*.16,0,0); } g.fill(); g.restore(); }
 function drawSparks(dt){ const g=sp.getContext("2d"), W=sp.clientWidth, H=sp.clientHeight; g.clearRect(0,0,W,H);
-  const want=Math.round(5+night*34); while(sparks.length<want) sparks.push(spawn());
+  const want=Math.round(4+night*(MOBILE?20:34)); while(sparks.length<want) sparks.push(spawn());
   for(let i=sparks.length-1;i>=0;i--){ const q=sparks[i]; q.t+=dt; const k=q.t/q.d; if(k>=1){ if(sparks.length>want) sparks.splice(i,1); else sparks[i]=spawn(); continue; }
     if(q.fall) q.y+=dt*10; const a=Math.sin(Math.PI*k), sz=q.s*(.4+.6*a);
     const glow=g.createRadialGradient(q.x,q.y,0,q.x,q.y,sz*1.6); const col=q.gold?"255,222,150":"255,250,235";
@@ -765,7 +763,7 @@ function drawSparks(dt){ const g=sp.getContext("2d"), W=sp.clientWidth, H=sp.cli
 
 /* ================= día → noche automático ================= */
 const E={sunset:$("#skySunset"),night:$("#skyNight"),stars:starC,sun:$("#sun"),sunRed:$("#sunRed"),moon:$("#moon"),cd:$("#cloudsDay"),cn:$("#cloudsNight"),clouds:$("#clouds"),
-  world:$("#world"),is:$("#imgSunset"),inn:$("#imgNight"),p1:$("#p1"),p2:$("#p2"),p3:$("#p3"),stage:$("#stage"),bridge:$("#bridge"),
+  world:$("#world"),is:$("#imgSunset"),inn:$("#imgNight"),p1:$("#p1"),p3:$("#p3"),stage:$("#stage"),bridge:$("#bridge"),
   ls:$("#land-sunset"),ln:$("#land-night"),ts:$("#trees-sunset"),tn:$("#trees-night")};
 const ss=(a,b,x)=>{ const k=Math.min(1,Math.max(0,(x-a)/(b-a))); return k*k*(3-2*k); };
 const mix=(a,b,k)=>a.map((v,i)=>Math.round(v+(b[i]-v)*k));
@@ -780,13 +778,13 @@ function apply(p){
   E.cn.style.opacity=b.toFixed(3); E.cd.style.opacity=(1-b*.9).toFixed(3);
   E.clouds.style.transform=`translateX(${(-p*6).toFixed(2)}%)`;
   E.world.style.transform=`translateX(-50%) scale(${(1.05-p*.05).toFixed(4)})`;
-  phase(E.p1,1-ss(.1,.2,p),-30); phase(E.p2,ss(.22,.32,p)*(1-ss(.5,.6,p)),24); phase(E.p3,ss(.7,.82,p),24);
+  phase(E.p1,1-ss(.12,.3,p),-30); phase(E.p3,ss(.55,.75,p),24);
   // el pasto continúa en la página
   const day=[159,176,108], dusk=[156,141,76], nite=[50,65,70]; let g0=mix(mix(day,dusk,a),nite,b);
   E.bridge.style.setProperty("--g0",`rgb(${g0})`); E.bridge.style.setProperty("--g1",`rgb(${mix(g0,[200,205,160],.35)})`);
 }
 // línea de tiempo (ms → progreso): día, atardecer, noche
-const KEYS=[[0,0],[1300,.02],[3300,.44],[3900,.47],[5900,1]];
+const KEYS=[[0,0],[700,.02],[2000,.45],[3400,1]];
 function pAt(ms){ if(ms<=0) return 0; for(let i=1;i<KEYS.length;i++){ const [t1,v1]=KEYS[i],[t0,v0]=KEYS[i-1]; if(ms<=t1){ const k=(ms-t0)/(t1-t0); return v0+(v1-v0)*k*k*(3-2*k); } } return 1; }
 let playing=false, t0=0, lastT=performance.now();
 function play(){ t0=performance.now(); playing=true; E.stage.classList.remove("done"); }
@@ -794,9 +792,10 @@ $("#replay").onclick = play;
 function frame(now){
   const dt=Math.min(.05,(now-lastT)/1000); lastT=now;
   if(playing){ const ms=now-t0; apply(pAt(ms)); if(ms>KEYS[KEYS.length-1][0]){ playing=false; E.stage.classList.add("done"); } }
-  if(!reduce) drawSparks(dt);
+  if(!reduce && stageOn) drawSparks(dt);
   requestAnimationFrame(frame);
 }
+let stageOn=true; new IntersectionObserver(es=>{ stageOn=es[0].isIntersecting; }).observe($("#stage"));
 apply(0); requestAnimationFrame(frame);
 
 /* ================= aparición del contenido ================= */
@@ -805,15 +804,17 @@ document.querySelectorAll(".rv").forEach(el=>io.observe(el));
 
 /* ================= aclarar con el scroll ================= */
 const clar=[...document.querySelectorAll(".clarify img")];
-function clarify(){ for(const im of clar){ const r=im.getBoundingClientRect(), k=ss(.98,.42,r.top/innerHeight);
-  im.style.filter=`blur(${((1-k)*14).toFixed(1)}px) saturate(${(.45+.55*k).toFixed(2)})`; im.style.opacity=(.25+.75*k).toFixed(3);
-  im.style.transform=`scale(${(1.05-.05*k).toFixed(4)})`; im.style.setProperty("--r",(18+k*95).toFixed(1)); } }
-addEventListener("scroll",clarify,{passive:true}); addEventListener("resize",clarify); clarify();
+let clarQ=false;
+function clarify(){ clarQ=false; for(const im of clar){ const r=im.getBoundingClientRect(); if(r.bottom<0||r.top>innerHeight) continue; const k=ss(.98,.42,r.top/innerHeight);
+  if(!MOBILE){ im.style.filter=`blur(${((1-k)*10).toFixed(1)}px) saturate(${(.5+.5*k).toFixed(2)})`; im.style.setProperty("--r",(18+k*95).toFixed(1)); }
+  im.style.opacity=(.2+.8*k).toFixed(3); im.style.transform=`scale(${(1.04-.04*k).toFixed(4)})`; } }
+if(MOBILE) for(const im of clar){ im.style.webkitMaskImage="none"; im.style.maskImage="none"; }
+addEventListener("scroll",()=>{ if(!clarQ){ clarQ=true; requestAnimationFrame(clarify);} },{passive:true}); addEventListener("resize",clarify); clarify();
 
 /* ================= hojitas y ramitas flotando ================= */
 const lv=$("#leaves"), lg=lv.getContext("2d"); let LW,LH; const LCOL=["#7cbf5a","#5f9e43","#9ccc6f","#4e8a3a","#b5d98c","#f4b63f","#f59fb0"];
-function lsize(){ const d=Math.min(2,devicePixelRatio||1); LW=innerWidth; LH=innerHeight; lv.width=LW*d; lv.height=LH*d; lg.setTransform(d,0,0,d,0,0); } lsize(); addEventListener("resize",lsize);
-const leaves=Array.from({length:innerWidth<600?11:18},(_,i)=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,s:.6+Math.random()*.9,
+function lsize(){ const d=DPR; LW=innerWidth; LH=innerHeight; lv.width=LW*d; lv.height=LH*d; lg.setTransform(d,0,0,d,0,0); } lsize(); addEventListener("resize",lsize);
+const leaves=Array.from({length:MOBILE?8:16},(_,i)=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,s:.6+Math.random()*.9,
   sp:.15+Math.random()*.35,ph:Math.random()*6,rot:Math.random()*6,sprig:i%3===0,c:LCOL[i%LCOL.length]}));
 function leafShape(g,s,c){ g.fillStyle=c; g.beginPath(); g.moveTo(0,-9*s); g.quadraticCurveTo(6*s,-2*s,0,9*s); g.quadraticCurveTo(-6*s,-2*s,0,-9*s); g.fill();
   g.strokeStyle="rgba(40,70,30,.35)"; g.lineWidth=.6; g.beginPath(); g.moveTo(0,-8*s); g.lineTo(0,8*s); g.stroke(); }
@@ -830,7 +831,7 @@ const stageEl=$("#stage");
 let lastL=performance.now(); (function lf(now){ const dt=Math.min(.05,(now-lastL)/1000); lastL=now; if(!reduce) drawLeaves(dt); requestAnimationFrame(lf); })(lastL);
 
 /* ================= pétalos blancos (apertura y al tocar) ================= */
-const cv=$("#fx"), cx=cv.getContext("2d"); let FW,FH; const dpr2=Math.min(2,devicePixelRatio||1);
+const cv=$("#fx"), cx=cv.getContext("2d"); let FW,FH; const dpr2=DPR;
 function rs(){ FW=innerWidth; FH=innerHeight; cv.width=FW*dpr2; cv.height=FH*dpr2; cx.setTransform(dpr2,0,0,dpr2,0,0); } rs(); addEventListener("resize",rs);
 const TINTS=["#fbeef0","#f6e2e6","#fff7ea","#f3e9dc","#ffffff"];
 let parts=[], running=false, lastFx=0;
@@ -841,7 +842,7 @@ function petalsAt(x,y,n=7){ for(let i=0;i<n;i++){ const a=-Math.PI/2+(Math.rando
 function go(){ if(!running){ running=true; lastFx=performance.now(); requestAnimationFrame(fxLoop);} }
 function drawPetal(p){ const s=p.s; cx.save(); cx.translate(p.x,p.y); cx.rotate(p.rot); cx.scale(.35+.65*Math.abs(Math.cos(p.flip)),1); cx.globalAlpha=p.a;
   const gr=cx.createLinearGradient(0,-s,0,s); gr.addColorStop(0,"#ffffff"); gr.addColorStop(1,p.tint); cx.fillStyle=gr;
-  cx.shadowColor="rgba(80,60,40,.12)"; cx.shadowBlur=4; cx.shadowOffsetY=2;
+  if(!MOBILE){ cx.shadowColor="rgba(80,60,40,.12)"; cx.shadowBlur=4; cx.shadowOffsetY=2; }
   cx.beginPath(); cx.moveTo(0,-s); cx.bezierCurveTo(s*.95,-s*.75,s*.8,s*.55,0,s); cx.bezierCurveTo(-s*.8,s*.55,-s*.95,-s*.75,0,-s); cx.fill();
   cx.shadowColor="transparent"; cx.strokeStyle="rgba(205,170,170,.28)"; cx.lineWidth=.7; cx.beginPath(); cx.moveTo(0,-s*.7); cx.quadraticCurveTo(s*.12,0,0,s*.85); cx.stroke(); cx.restore(); }
 function fxLoop(now){ const k=Math.min(3,(now-lastFx)/16.7); lastFx=now; cx.clearRect(0,0,FW,FH); const tt=now/1000;
