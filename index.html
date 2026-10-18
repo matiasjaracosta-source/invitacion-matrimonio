@@ -156,6 +156,9 @@ h2.title{font-family:"Pinyon Script";font-weight:400;font-size:clamp(48px,12vw,7
 .letter-card::before{content:"";position:absolute;inset:8px;border:1px solid rgba(179,141,74,.35);pointer-events:none}
 .guest{font-family:"Pinyon Script";font-size:clamp(42px,11vw,62px);line-height:1.15;color:var(--forest);margin:8px 0 16px}
 .seats{display:inline-flex;align-items:center;gap:12px;margin-top:22px;padding:10px 22px;border:1px solid var(--sage-2);border-radius:999px;font-family:Cinzel;font-size:12px;letter-spacing:.24em;color:var(--sage-d)}
+.names-list{list-style:none;margin:16px auto 0;padding:0;max-width:420px}
+.names-list li{font-size:clamp(19px,4.8vw,22px);color:var(--forest);line-height:1.5;padding:4px 0}
+.names-list li+li::before{content:"";display:block;width:26px;height:1px;margin:0 auto 8px;background:linear-gradient(90deg,transparent,#c9a75e,transparent)}
 .seats b{font-size:20px;font-weight:500;color:var(--forest);letter-spacing:0}
 .count{display:flex;justify-content:center;gap:clamp(8px,3vw,22px);margin-top:24px}
 .count div{width:clamp(68px,20vw,108px);aspect-ratio:1;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle at 35% 30%,#fffdf3,#ece6cf);border:1px solid rgba(95,113,80,.45);box-shadow:inset 0 0 0 5px rgba(255,255,255,.6),0 12px 26px -16px rgba(50,60,30,.6)}
@@ -464,6 +467,7 @@ footer .hash{font-family:Cinzel;letter-spacing:.25em;font-size:13px;color:var(--
       <svg class="divider"><use href="#divider"/></svg>
       <p class="lead" style="margin-top:18px" id="personalMsg"></p>
       <div class="seats" id="seats" hidden>LUGARES RESERVADOS <b id="seatsN">2</b></div>
+      <ul class="names-list" id="namesList" hidden></ul>
     </div>
   </section>
 
@@ -587,10 +591,12 @@ const CONFIG = {
 /* ================= invitado desde el link ================= */
 const $ = s => document.querySelector(s);
 const qs = new URLSearchParams(location.search);
-let guest = { nombre:"", cupos:0 };
-try{ if(qs.get("i")){ const b=qs.get("i").replace(/-/g,"+").replace(/_/g,"/"); const j=JSON.parse(decodeURIComponent(escape(atob(b)))); guest.nombre=j.n||""; guest.cupos=+j.c||0; } }catch(e){}
+let guest = { nombre:"", cupos:0, nombres:[] };
+try{ if(qs.get("i")){ const b=qs.get("i").replace(/-/g,"+").replace(/_/g,"/"); const j=JSON.parse(decodeURIComponent(escape(atob(b)))); guest.nombre=j.n||""; guest.cupos=+j.c||0; guest.nombres=j.m||[]; } }catch(e){}
 if(!guest.nombre && qs.get("para")) guest.nombre = qs.get("para");
 if(!guest.cupos && qs.get("cupos")) guest.cupos = +qs.get("cupos")||0;
+if(!guest.nombres.length && qs.get("nombres")) guest.nombres = qs.get("nombres").split(/[|;]/).map(s=>s.trim()).filter(Boolean);
+if(!guest.cupos && guest.nombres.length) guest.cupos = guest.nombres.length;
 const plural = guest.cupos > 1 || /( y |,|&|familia)/i.test(guest.nombre);
 const t = (a,b) => plural ? b : a;
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -652,6 +658,7 @@ $("#personalMsg").textContent = t(
   "Tu presencia es el regalo más importante para nosotros. Queremos compartir contigo una tarde de campo que se convierte en noche de estrellas: el día en que unimos nuestras vidas.",
   "Su presencia es el regalo más importante para nosotros. Queremos compartir con ustedes una tarde de campo que se convierte en noche de estrellas: el día en que unimos nuestras vidas.");
 if(guest.cupos>0){ $("#seats").hidden=false; $("#seatsN").textContent=guest.cupos; }
+if(guest.nombres.length){ const ul=$("#namesList"); ul.hidden=false; ul.innerHTML=guest.nombres.map(n=>`<li></li>`).join(""); [...ul.children].forEach((li,i)=>li.textContent=guest.nombres[i]); }
 $("#rsvpTitle").textContent = t("¿Nos acompañas?","¿Nos acompañan?");
 $("#rsvpMsg").textContent = t(
   `Confirma tu asistencia antes del ${CONFIG.plazoConfirmacion}. Con cariño, quienes no confirmen a tiempo no podrán ser considerados.`,
