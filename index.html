@@ -31,6 +31,9 @@
 html{-webkit-text-size-adjust:100%}
 body{background:var(--paper);color:var(--ink);font-family:"Cormorant Garamond",Georgia,serif;font-size:19px;line-height:1.55;overflow-x:hidden}
 body.locked{overflow:hidden;height:100vh}
+#intro.wait>*{opacity:0}
+#intro.wait::after{content:"M & J";position:absolute;inset:0;display:grid;place-items:center;font:400 52px "Pinyon Script",cursive;color:#a8873f;animation:espera 1.6s ease-in-out infinite alternate}
+@keyframes espera{from{opacity:.25}to{opacity:.85}}
 img{max-width:100%;display:block}
 a{color:inherit}
 body{background-image:var(--grain)}
@@ -665,15 +668,36 @@ const CONFIG = {
   musicaVolumen: .1
 };
 
+/* ================= link corto (?c=código): saludo y nombres vienen de la planilla ================= */
+const codigo = new URLSearchParams(location.search).get("c");
+let desdeCodigo = null;
+if(codigo && /^[a-z0-9]{3,10}$/i.test(codigo)){
+  const cKey = "inv:"+codigo;
+  try{ desdeCodigo = JSON.parse(localStorage.getItem(cKey)); }catch(e){}
+  if(desdeCodigo){ main();   // ya lo tenía guardado: abre al tiro y actualiza para la próxima vez
+    fetch(CONFIG.rsvpEndpoint+"?c="+encodeURIComponent(codigo)).then(r=>r.json()).then(j=>{ if(j && j.ok) try{ localStorage.setItem(cKey, JSON.stringify(j)); }catch(e){} }).catch(()=>{});
+  } else {
+    document.getElementById("intro").classList.add("wait");
+    const listo = d => { desdeCodigo = d; document.getElementById("intro").classList.remove("wait"); main(); };
+    const tope = setTimeout(()=>listo(null), 9000);
+    fetch(CONFIG.rsvpEndpoint+"?c="+encodeURIComponent(codigo)).then(r=>r.json()).then(j=>{
+      clearTimeout(tope);
+      if(j && j.ok){ try{ localStorage.setItem(cKey, JSON.stringify(j)); }catch(e){} listo(j); } else listo(null);
+    }).catch(()=>{ clearTimeout(tope); listo(null); });
+  }
+} else main();
+
+function main(){
 /* ================= invitado desde el link ================= */
 const $ = s => document.querySelector(s);
 const qs = new URLSearchParams(location.search);
 let guest = { nombre:"", cupos:0, nombres:[] };
+if(desdeCodigo){ guest.nombre = desdeCodigo.saludo||""; guest.nombres = desdeCodigo.nombres||[]; }
 try{ if(qs.get("i")){ const b=qs.get("i").replace(/-/g,"+").replace(/_/g,"/"); const j=JSON.parse(decodeURIComponent(escape(atob(b)))); guest.nombre=j.n||""; guest.cupos=+j.c||0; guest.nombres=j.m||[]; } }catch(e){}
 if(!guest.nombre && qs.get("para")) guest.nombre = qs.get("para");
 if(!guest.cupos && qs.get("cupos")) guest.cupos = +qs.get("cupos")||0;
 if(!guest.nombres.length && qs.get("nombres")) guest.nombres = qs.get("nombres").split(/[|;]/).map(s=>s.trim()).filter(Boolean);
-guest.hoja = qs.get("t") || "";
+guest.hoja = qs.get("t") || (desdeCodigo && desdeCodigo.hoja) || "";
 if(!guest.cupos && guest.nombres.length) guest.cupos = guest.nombres.length;
 const plural = guest.cupos > 1 || /( y |,|&|familia)/i.test(guest.nombre);
 const t = (a,b) => plural ? b : a;
@@ -1023,6 +1047,7 @@ function openInvite(){
 intro.addEventListener("click", openInvite);
 // pétalos blancos al tocar cualquier parte
 addEventListener("pointerdown",e=>{ if(!opened||reduce||e.target.closest("a,button")) return; petalsAt(e.clientX,e.clientY,7); });
+}
 </script>
 </body>
 </html>
