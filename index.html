@@ -118,6 +118,17 @@ html.lite .rise .letter{transform:translateY(-6%)}
 html.lite .lift .pocket{transform:translateY(105%)}
 html.lite .lift .letter{transform:translateY(4%) scale(1.04);z-index:5}
 html.lite .zoom .letter{transform:translateY(4%) scale(1.5)}
+html.lite .p3 .big{animation:none;filter:none}
+/* calidad baja (celulares básicos): todo en 2D, sin texturas pesadas ni animaciones que repintan */
+html.low .paper-green{background-image:linear-gradient(160deg,#f4ead6,#e7d7b8);background-size:100% 100%}
+html.low .letter{background-image:radial-gradient(ellipse at 50% 40%,#fbf7ee,#efe6d2);background-size:100% 100%}
+html.low .liner,html.low .flap .back{background-image:var(--emb-l);background-size:210px 210px}
+html.low .flap{transform:scaleY(1);transform-style:flat}
+html.low .open .flap{transform:scaleY(-1)}
+html.low .flap .back,html.low .flap .shade,html.low .flap-shadow,html.low .seal-glow{display:none}
+html.low .seal .half svg{filter:none}
+html.low .sprig,html.low .clouds-drift,html.low .btn-rsvp,html.low .gift-icon,html.low .btn-gift,html.low .btn-gift::after,html.low .cue i{animation:none}
+html.low .layer{will-change:auto}
 
 /* ======================= ESCENA (día → noche automático) ======================= */
 .stage{position:relative;height:100vh;height:100svh;overflow:hidden;background:#cfe1ec}
@@ -742,8 +753,17 @@ const t = (a,b) => plural ? b : a;
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const MOBILE = matchMedia("(pointer:coarse)").matches || innerWidth < 700;
 const DPR = MOBILE ? 1 : Math.min(2, devicePixelRatio||1);
+/* calidad según el equipo, medida al abrir el link: alta (iPhone/computador), media (Android), baja (Android básico) */
 const ANDROID = /Android/i.test(navigator.userAgent);
-if(ANDROID) document.documentElement.classList.add("lite");
+function cpuMs(){ let best=1e9; for(let r=0;r<2;r++){ const t=performance.now(); let s=0; for(let i=1;i<150000;i++) s+=Math.sqrt(i)*Math.sin(i); best=Math.min(best,performance.now()-t); if(s===42) console.log(s); } return best; }
+const CPU = cpuMs(), MEM = navigator.deviceMemory || 0;   // en este PC ~18 ms; un Android básico, 3 a 5 veces más
+let CAL = "alta";
+if(ANDROID) CAL = (CPU > 45 || (MEM && MEM <= 2) || (MEM && MEM <= 4 && CPU > 30)) ? "baja" : "media";
+else if(MOBILE && CPU > 45) CAL = "media";
+if(["alta","media","baja"].includes(qs.get("calidad"))) CAL = qs.get("calidad");   // para probar: ?calidad=baja
+const LITE = CAL !== "alta", LOW = CAL === "baja";
+document.documentElement.classList.toggle("lite", LITE);
+document.documentElement.classList.toggle("low", LOW);
 
 /* ================= texturas de papel (generadas) ================= */
 const uri = s => `url("data:image/svg+xml;charset=utf-8,${encodeURIComponent(s)}")`;
@@ -912,7 +932,7 @@ let lastW=0; function sizeAll(){ if(innerWidth===lastW) return; lastW=innerWidth
 sizeAll(); addEventListener("resize", sizeAll);
 
 /* ================= brillitos ================= */
-const sparks=[]; let night=0;
+const sparks=[]; let night=0, introFuera=false;
 function spawn(){ const W=sp.clientWidth, H=sp.clientHeight, nightish=Math.random()<.3+night*.7;
   const inScene=Math.random()<.35; return { x:Math.random()*W, y: inScene ? H*(.45+Math.random()*.45) : H*Math.pow(Math.random(),1.3)*.7,
     s:(nightish?3:2.4)+Math.random()*(nightish?7:5), t:0, d:1.4+Math.random()*2.2, rot:Math.random()*.6-.3,
@@ -958,7 +978,8 @@ $("#replay").onclick = play;
 function frame(now){
   const dt=Math.min(.05,(now-lastT)/1000); lastT=now;
   if(playing){ const ms=now-t0; apply(pAt(ms)); if(ms>KEYS[KEYS.length-1][0]){ playing=false; E.stage.classList.add("done"); } }
-  if(!reduce && stageOn) drawSparks(dt);
+  // mientras está el sobre no se dibujan brillitos: así la apertura tiene todo el celular para ella
+  if(!reduce && stageOn && !LOW && introFuera) drawSparks(dt);
   requestAnimationFrame(frame);
 }
 let stageOn=true; new IntersectionObserver(es=>{ stageOn=es[0].isIntersecting; }).observe($("#stage"));
@@ -994,7 +1015,7 @@ function drawLeaves(dt){ const on=scrollY>stageEl.offsetHeight*.55; lv.style.opa
     else leafShape(lg,l.s,l.c);
     lg.restore(); } }
 const stageEl=$("#stage");
-let lastL=performance.now(); (function lf(now){ const dt=Math.min(.05,(now-lastL)/1000); lastL=now; if(!reduce) drawLeaves(dt); requestAnimationFrame(lf); })(lastL);
+let lastL=performance.now(); if(!LOW) (function lf(now){ const dt=Math.min(.05,(now-lastL)/1000); lastL=now; if(!reduce) drawLeaves(dt); requestAnimationFrame(lf); })(lastL);
 
 /* ================= formulario de confirmación ================= */
 const rsvpBtn=$("#rsvpBtn"), modal=$("#rsvpModal"), rfCard=$("#rfCard");
@@ -1093,15 +1114,17 @@ function openInvite(){
   const r=$("#seal").getBoundingClientRect();
   const step=(cls,ms)=>setTimeout(()=>intro.classList.add(cls), reduce?0:ms);
   intro.classList.add("crack");
-  if(!reduce){ setTimeout(()=>rain(ANDROID?12:26),500); setTimeout(()=>rain(ANDROID?14:30),2600); }
+  if(!reduce){ setTimeout(()=>rain(LOW?5:LITE?12:26),500); setTimeout(()=>rain(LOW?6:LITE?14:30),2600); }
   step("open",450); step("rise",1300); step("lift",2600); step("zoom",3300);
-  setTimeout(()=>{ intro.classList.add("gone"); document.body.classList.remove("locked"); scrollTo(0,0); play(); }, reduce?50:3700);
+  setTimeout(()=>{ intro.classList.add("gone"); document.body.classList.remove("locked"); scrollTo(0,0); introFuera=true; play(); }, reduce?50:3700);
   setTimeout(()=>intro.remove(), reduce?1300:5200);
   startMusic();
 }
 intro.addEventListener("click", openInvite);
 // pétalos blancos al tocar cualquier parte
-addEventListener("pointerdown",e=>{ if(!opened||reduce||e.target.closest("a,button")) return; petalsAt(e.clientX,e.clientY,7); });
+addEventListener("pointerdown",e=>{ if(!opened||reduce||e.target.closest("a,button")) return; petalsAt(e.clientX,e.clientY,LOW?3:7); });
+// las ilustraciones de la escena se decodifican mientras el sobre está cerrado, para que el día → noche no se trabe al partir
+document.querySelectorAll("#stage img").forEach(im=>{ try{ im.decode().catch(()=>{}); }catch(e){} });
 }
 </script>
 </body>
