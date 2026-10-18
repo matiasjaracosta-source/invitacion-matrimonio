@@ -489,7 +489,7 @@ footer .hash{font-family:Cinzel;letter-spacing:.25em;font-size:13px;color:var(--
     <p class="lead rv d1">Elegimos un lugar verde y lleno de vida, porque así soñamos nuestro amor: algo que echa raíces, recibe la luz y no deja de crecer.</p>
     <div class="venue clarify"><img src="lugar-acuarela.webp" alt="La parcela en Calera de Tango al atardecer, en acuarela" loading="lazy"></div>
     <div class="place-line rv" id="placeLine">CALERA DE TANGO · REGIÓN METROPOLITANA</div>
-    <div class="btns rv"><a class="btn" id="mapBtn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 22s7-7.2 7-12.5A7 7 0 005 9.5C5 14.8 12 22 12 22z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Cómo llegar</a></div>
+    <div class="btns rv"><a class="btn" id="mapBtn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 22s7-7.2 7-12.5A7 7 0 005 9.5C5 14.8 12 22 12 22z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Google Maps</a><a class="btn" id="wazeBtn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M5 16a8 8 0 1114.5-4.6c0 3.5-2.6 6.6-6.6 6.6H9.5"/><circle cx="8" cy="18.5" r="1.6"/><circle cx="15" cy="18.5" r="1.6"/><path d="M10 10h.01M15 10h.01M10 13c1.2 1 2.8 1 4 0"/></svg>Waze</a></div>
   </section>
 
   <section class="s" id="programa">
@@ -561,7 +561,9 @@ const CONFIG = {
   llegada: "2027-03-06T17:00:00-03:00",     // llegada de invitados
   fin:     "2027-03-07T00:00:00-03:00",
   lugar: "Calera de Tango, Región Metropolitana",
-  mapa:  "https://maps.google.com/?q=Calera+de+Tango",   // reemplazar por el link exacto de la parcela
+  coordenadas: "-33.6372095,-70.8076073",   // ubicación exacta de la parcela
+  get mapa(){ return "https://www.google.com/maps/search/?api=1&query="+this.coordenadas; },
+  get waze(){ return "https://waze.com/ul?ll="+this.coordenadas+"&navigate=yes"; },
   ceremonia: { hora:"17:30" },
 
   estacionamiento: "Hay estacionamiento disponible en la entrada de la parcela.",
@@ -579,7 +581,7 @@ const CONFIG = {
   vestimenta: "Semi formal de jardín",
   vestimentaNota: "Para ellas, solo vestidos largos.",
   paleta: ["#e8735a","#f4b63f","#f59fb0","#7cbf5a","#2fa59a","#6fb3e8"],
-  listaNovios: "https://www.milistadenovios.cl/",   // reemplazar por el link exacto de su lista
+  listaNovios: "https://milistadenovios.cl/lista/matias-javiera",
   formulario: "https://forms.gle/REEMPLAZAR",
   formularioCampoNombre: "",          // opcional: "entry.123456789" para prellenar el nombre
   plazoConfirmacion: "6 de febrero de 2027",
@@ -673,7 +675,7 @@ if(false) $("#dressNote").textContent = t("Telas livianas, colores de verano y z
 $("#grassTip").textContent = t("Celebraremos sobre pasto: te recomendamos taco ancho o plataforma.","Celebraremos sobre pasto: les recomendamos taco ancho o plataforma.");
 $("#giftMsg").textContent = t("Tu compañía es el mejor regalo que podemos recibir. Para quienes deseen tener un detalle con nosotros, hemos preparado una lista de novios para esta nueva etapa que comenzamos juntos.","Su compañía es el mejor regalo que podemos recibir. Para quienes deseen tener un detalle con nosotros, hemos preparado una lista de novios para esta nueva etapa que comenzamos juntos.");
 $("#placeLine").textContent = CONFIG.lugar.toUpperCase();
-$("#mapBtn").href = CONFIG.mapa;
+$("#mapBtn").href = CONFIG.mapa; $("#wazeBtn").href = CONFIG.waze;
 $("#parkingTxt").textContent = CONFIG.estacionamiento;
 
 $("#timeline").innerHTML = CONFIG.programa.map((p,i)=>`<div class="tl rv ${i%2?'d1':''}"><div class="t">${p.hora}</div><div class="dot"><svg><use href="#${p.icono}"/></svg></div><div class="w">${p.que}${p.nota?`<small>${p.nota}</small>`:""}</div></div>`).join("");
