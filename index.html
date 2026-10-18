@@ -97,6 +97,27 @@ body{background-image:var(--grain)}
 .lift .letter{transform:translateZ(60px) translateY(4%) scale(1.04)}
 .zoom .letter{transform:translateZ(420px) translateY(4%) scale(1.15);opacity:0;transition:transform 1.3s cubic-bezier(.5,0,.7,.4),opacity 1.2s ease .1s}
 .zoom .liner{opacity:0;transition:opacity 1s}
+/* Android: sobre "plano" (solo la solapa gira en 3D) para no saturar la tarjeta gráfica */
+html.lite .env{transform:none!important;transform-style:flat;transition:none}
+html.lite .liner{transform:none}
+html.lite .letter{transform:translateY(46%);z-index:1;will-change:transform}
+html.lite .pocket{transform:none;z-index:2;will-change:transform}
+html.lite .flap-shadow{transform:none;z-index:3}
+html.lite .flap{transform:perspective(1100px) rotateX(0deg);z-index:4;will-change:transform}
+html.lite .front-text{transform:none;z-index:5}
+html.lite .seal-glow{transform:scale(.2);z-index:6}
+html.lite .seal{transform:none;z-index:7}
+html.lite .seal .half{will-change:transform,opacity}
+html.lite .seal-wrap,html.lite .front-text .hint,html.lite .letter .ln{animation:none}
+html.lite .letter .ln{filter:none}
+html.lite .open .flap{transform:perspective(1100px) rotateX(178deg)}
+html.lite .crack .front-text{transform:translateY(24px)}
+html.lite .crack .seal-glow{animation:sglowL 1.8s ease-out forwards}
+@keyframes sglowL{0%{opacity:0;transform:scale(.2)}22%{opacity:1}100%{opacity:0;transform:scale(5.5)}}
+html.lite .rise .letter{transform:translateY(-6%)}
+html.lite .lift .pocket{transform:translateY(105%)}
+html.lite .lift .letter{transform:translateY(4%) scale(1.04);z-index:5}
+html.lite .zoom .letter{transform:translateY(4%) scale(1.5)}
 
 /* ======================= ESCENA (día → noche automático) ======================= */
 .stage{position:relative;height:100vh;height:100svh;overflow:hidden;background:#cfe1ec}
@@ -721,6 +742,8 @@ const t = (a,b) => plural ? b : a;
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const MOBILE = matchMedia("(pointer:coarse)").matches || innerWidth < 700;
 const DPR = MOBILE ? 1 : Math.min(2, devicePixelRatio||1);
+const ANDROID = /Android/i.test(navigator.userAgent);
+if(ANDROID) document.documentElement.classList.add("lite");
 
 /* ================= texturas de papel (generadas) ================= */
 const uri = s => `url("data:image/svg+xml;charset=utf-8,${encodeURIComponent(s)}")`;
@@ -739,7 +762,20 @@ R.setProperty("--fib-h", uri(FIB("0.008 0.32",3)));
 R.setProperty("--fib-v", uri(FIB("0.3 0.009",7)));
 R.setProperty("--grain", uri(GRAIN.replace(/%23/g,"#")));
 R.setProperty("--liner", uri(LINER));
-R.setProperty("--paper-fine", uri(`<svg xmlns='http://www.w3.org/2000/svg' width='280' height='280'><filter id='p' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='4' seed='5' stitchTiles='stitch'/><feDiffuseLighting surfaceScale='1.6' lighting-color='#fff'><feDistantLight azimuth='45' elevation='55'/></feDiffuseLighting><feColorMatrix values='0 0 0 0 .42  0 0 0 0 .33  0 0 0 0 .2  -.75 0 0 0 .66'/></filter><rect width='100%' height='100%' filter='url(#p)'/></svg>`));
+const PAPER = `<svg xmlns='http://www.w3.org/2000/svg' width='280' height='280'><filter id='p' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='4' seed='5' stitchTiles='stitch'/><feDiffuseLighting surfaceScale='1.6' lighting-color='#fff'><feDistantLight azimuth='45' elevation='55'/></feDiffuseLighting><feColorMatrix values='0 0 0 0 .42  0 0 0 0 .33  0 0 0 0 .2  -.75 0 0 0 .66'/></filter><rect width='100%' height='100%' filter='url(#p)'/></svg>`;
+R.setProperty("--paper-fine", uri(PAPER));
+/* las texturas SVG con filtros se vuelven a calcular en cada cuadro de la animación: se convierten una vez a imagen */
+(async()=>{
+  const k = MOBILE ? 1 : 2;
+  const png = async (svg,w,h) => {
+    const im = new Image(); im.src = "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg); await im.decode();
+    const c = document.createElement("canvas"); c.width = w*k; c.height = h*k; c.getContext("2d").drawImage(im,0,0,c.width,c.height);
+    const b = await new Promise(r=>c.toBlob(r,"image/png")); return `url("${URL.createObjectURL(b)}")`;
+  };
+  const lista = [["--emb-l",FLORAL("rgba(255,255,245,.55)"),210],["--emb-d",FLORAL("rgba(52,70,40,.42)"),210],
+    ["--fib-h",FIB("0.008 0.32",3),360],["--fib-v",FIB("0.3 0.009",7),360],["--grain",GRAIN.replace(/%23/g,"#"),260],["--paper-fine",PAPER,280]];
+  for(const [v,svg,s] of lista){ try{ R.setProperty(v, await png(svg,s,s)); }catch(e){} }
+})();
 
 /* ================= sello de cera (con relieve real) ================= */
 const DEF = id => document.getElementById(id).outerHTML;
@@ -1047,7 +1083,8 @@ const env=$("#env"), intro=$("#intro");
 function tilt(x,y){ env.style.setProperty("--ry",`${(x*7).toFixed(2)}deg`); env.style.setProperty("--rx",`${(-y*5).toFixed(2)}deg`); }
 intro.addEventListener("pointermove",e=>{ if(!intro.classList.contains("crack")) tilt(e.clientX/innerWidth-.5, e.clientY/innerHeight-.5); });
 intro.addEventListener("pointerleave",()=>tilt(0,0));
-addEventListener("deviceorientation",e=>{ if(intro.classList.contains("crack")||e.gamma==null) return; tilt(Math.max(-1,Math.min(1,e.gamma/30))*.5, Math.max(-1,Math.min(1,(e.beta-45)/30))*.5); });
+// en celulares no se inclina con el giroscopio: en Android disparaba un repintado del sobre en cada cuadro
+if(!MOBILE) addEventListener("deviceorientation",e=>{ if(intro.classList.contains("crack")||e.gamma==null) return; tilt(Math.max(-1,Math.min(1,e.gamma/30))*.5, Math.max(-1,Math.min(1,(e.beta-45)/30))*.5); });
 if("scrollRestoration" in history) history.scrollRestoration="manual";
 scrollTo(0,0);
 let opened=false;
@@ -1056,7 +1093,7 @@ function openInvite(){
   const r=$("#seal").getBoundingClientRect();
   const step=(cls,ms)=>setTimeout(()=>intro.classList.add(cls), reduce?0:ms);
   intro.classList.add("crack");
-  if(!reduce){ setTimeout(()=>rain(26),500); setTimeout(()=>rain(30),2600); }
+  if(!reduce){ setTimeout(()=>rain(ANDROID?12:26),500); setTimeout(()=>rain(ANDROID?14:30),2600); }
   step("open",450); step("rise",1300); step("lift",2600); step("zoom",3300);
   setTimeout(()=>{ intro.classList.add("gone"); document.body.classList.remove("locked"); scrollTo(0,0); play(); }, reduce?50:3700);
   setTimeout(()=>intro.remove(), reduce?1300:5200);
