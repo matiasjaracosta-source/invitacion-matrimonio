@@ -205,7 +205,19 @@ function prepararColumnas() {
 
 /* ================= links cortos ================= */
 const URL_INVITACION = 'https://matiasjaracosta-source.github.io/invitacion-matrimonio/';
-const COL_LINK = 5, COL_MENSAJE = 6, COL_ENVIAR = 7;
+const COL_LINK = 5, COL_MENSAJE = 6, COL_ENVIAR = 7, COL_ENVIAR_PDF = 8;
+const ENC_PDF = 'Enviar PDF por WhatsApp (lo completamos nosotros)';
+// invitación en PDF (una hoja), compartida con "cualquier persona con el enlace"
+const PDF_UNO = 'https://drive.google.com/file/d/1Lk3j-nxFZ_hT2N9iqoVT9PStZ30-pCEO/view';
+const PDF_VARIOS = 'https://drive.google.com/file/d/1_29KHdELgm7e4vADRc5otVnobpmBQDNa/view';
+const PLAZO = '5 de febrero de 2027';
+const SUFIJO_LINK = '&calidad=baja';   // todos los invitados ven la versión liviana (la que anda fluida en cualquier celular)
+
+/** Código de una invitación a partir de su link (…/?c=xxxxx&…). */
+function codigoDe(link) {
+  const m = String(link || '').match(/[?&]c=([a-z0-9]+)/i);
+  return m ? m[1] : '';
+}
 
 /** "Ana Pérez, Luis Soto y Marta" → ['Ana Pérez', 'Luis Soto', 'Marta'] */
 function partirNombres(txt) {
@@ -222,7 +234,7 @@ function buscarCodigo(c) {
     if (!sh || sh.getLastRow() < 2) continue;
     const datos = sh.getRange(2, 1, sh.getLastRow() - 1, COL_LINK).getValues();
     for (const f of datos) {
-      if (String(f[COL_LINK - 1]).split('?c=')[1] === c && String(f[1]).trim()) {
+      if (codigoDe(f[COL_LINK - 1]) === c && String(f[1]).trim()) {
         return { ok: true, saludo: String(f[1]).trim(), nombres: partirNombres(f[2]), hoja: nombre };
       }
     }
@@ -241,11 +253,12 @@ function generarLinks() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sh = ss.getActiveSheet();
   if (HOJAS_INVITADOS.indexOf(sh.getName()) < 0) { SpreadsheetApp.getUi().alert('Abre la pestaña Mati o Javi.'); return; }
+  asegurarColumnaPdf(sh);
   const usados = {};
   HOJAS_INVITADOS.forEach(n => {
     const h = ss.getSheetByName(n);
     if (h && h.getLastRow() > 1) h.getRange(2, COL_LINK, h.getLastRow() - 1, 1).getValues()
-      .forEach(f => { const c = String(f[0]).split('?c=')[1]; if (c) usados[c] = true; });
+      .forEach(f => { const c = codigoDe(f[0]); if (c) usados[c] = true; });
   });
   const letras = 'abcdefghjkmnpqrstuvwxyz23456789';
   const nuevo = () => { let c; do { c = ''; for (let i = 0; i < 5; i++) c += letras[Math.floor(Math.random() * letras.length)]; } while (usados[c]); usados[c] = true; return c; };
@@ -255,8 +268,10 @@ function generarLinks() {
   const filas = sh.getRange(2, 1, n, COL_LINK).getValues();
   const links = filas.map(f => {
     if (!String(f[1]).trim()) return [f[COL_LINK - 1]];
+    // conserva el código que ya tenía (el link enviado sigue sirviendo) y le pone la calidad
     const actual = String(f[COL_LINK - 1]);
-    return [actual.indexOf(URL_INVITACION + '?c=') === 0 ? actual : URL_INVITACION + '?c=' + nuevo()];
+    const c = actual.indexOf(URL_INVITACION) === 0 && codigoDe(actual) ? codigoDe(actual) : nuevo();
+    return [URL_INVITACION + '?c=' + c + SUFIJO_LINK];
   });
   sh.getRange(2, COL_LINK, n, 1).setValues(links);
 
@@ -266,23 +281,56 @@ function generarLinks() {
   SpreadsheetApp.getActive().toast('Links listos. Nada se envía solo: apreta "Enviar por WhatsApp" en cada fila cuando quieras mandarla.', 'Invitación', 8);
 }
 
-/** Mensaje de WhatsApp (columna F) y botón que abre WhatsApp con el mensaje listo (columna G). No envía nada. */
+/** Columna H: botón para mandar la invitación en PDF (se inserta junto al botón del link si no existe). */
+function asegurarColumnaPdf(sh) {
+  if (String(sh.getRange(1, COL_ENVIAR_PDF).getValue()) === ENC_PDF) return;
+  sh.insertColumnAfter(COL_ENVIAR);
+  sh.getRange(1, COL_ENVIAR).copyTo(sh.getRange(1, COL_ENVIAR_PDF), SpreadsheetApp.CopyPasteType.PASTE_FORMAT, false);
+  sh.getRange(1, COL_ENVIAR_PDF).setValue(ENC_PDF);
+  sh.setColumnWidth(COL_ENVIAR_PDF, sh.getColumnWidth(COL_ENVIAR));
+}
+
+/** "Ana, Luis y Marta" */
+function listaNombres(ns) {
+  return ns.length > 1 ? ns.slice(0, -1).join(', ') + ' y ' + ns[ns.length - 1] : ns.join('');
+}
+
+/** Botón que abre WhatsApp con el mensaje listo. No envía nada. */
+function botonWhatsApp(celda, tel, msj, texto) {
+  let d = String(tel).replace(/\D/g, '');
+  if (d.length === 8) d = '569' + d; else if (d.length === 9) d = '56' + d;
+  if (d.length < 11) { celda.setValue('Sin WhatsApp: copia el mensaje'); return; }
+  celda.setRichTextValue(SpreadsheetApp.newRichTextValue().setText(texto)
+    .setLinkUrl('https://wa.me/' + d + '?text=' + encodeURIComponent(msj)).build());
+}
+
+/** Mensaje con link (F), botón del link (G) y botón con la invitación en PDF (H). */
 function armarMensaje(sh, r) {
   const f = sh.getRange(r, 1, 1, COL_LINK).getValues()[0];
   const saludo = String(f[1]).trim(), link = String(f[COL_LINK - 1]).trim();
+  const nombres = partirNombres(f[2]), pl = nombres.length > 1;
   const celdaMsj = sh.getRange(r, COL_MENSAJE), celdaBtn = sh.getRange(r, COL_ENVIAR);
+  const tienePdf = String(sh.getRange(1, COL_ENVIAR_PDF).getValue()) === ENC_PDF;
+  const celdaPdf = tienePdf ? sh.getRange(r, COL_ENVIAR_PDF) : null;
+  const inicio = '¡Hola ' + saludo + '! 💚\n\nCon mucha alegría queremos ' + (pl ? 'invitarlos' : 'invitarte') +
+    ' a nuestro matrimonio, el sábado 6 de marzo de 2027 en Calera de Tango.\n\n';
+
+  if (celdaPdf) {
+    if (!saludo) celdaPdf.clearContent();
+    else {
+      const msjPdf = inicio +
+        (pl ? 'Les enviamos su invitación en PDF: ' + PDF_VARIOS : 'Te enviamos tu invitación en PDF: ' + PDF_UNO) + '\n\n' +
+        (pl ? 'La invitación es para: ' + listaNombres(nombres) + '.\n' : '') +
+        (pl ? 'Por favor confirmen su asistencia respondiendo este mensaje hasta el ' : 'Por favor confirma tu asistencia respondiendo este mensaje hasta el ') +
+        PLAZO + '.\n\nCon cariño, Mati & Javi';
+      botonWhatsApp(celdaPdf, f[3], msjPdf, 'Enviar PDF por WhatsApp');
+    }
+  }
+
   if (!saludo || link.indexOf('?c=') < 0) { celdaMsj.clearContent(); celdaBtn.clearContent(); return; }
-  const pl = partirNombres(f[2]).length > 1;
-  const msj = '¡Hola ' + saludo + '! 💚\n\nCon mucha alegría queremos ' + (pl ? 'invitarlos' : 'invitarte') +
-    ' a nuestro matrimonio, el sábado 6 de marzo de 2027 en Calera de Tango.\n\n' +
-    (pl ? 'Aquí está su invitación: ' : 'Aquí está tu invitación: ') + link + '\n\nCon cariño, Mati & Javi';
+  const msj = inicio + (pl ? 'Aquí está su invitación: ' : 'Aquí está tu invitación: ') + link + '\n\nCon cariño, Mati & Javi';
   celdaMsj.setValue(msj).setWrap(false);
-  let d = String(f[3]).replace(/\D/g, '');
-  if (d.length === 8) d = '569' + d; else if (d.length === 9) d = '56' + d;
-  if (d.length < 11) { celdaBtn.setValue('Sin WhatsApp: copia el mensaje'); return; }
-  const texto = 'Enviar por WhatsApp';
-  celdaBtn.setRichTextValue(SpreadsheetApp.newRichTextValue().setText(texto)
-    .setLinkUrl('https://wa.me/' + d + '?text=' + encodeURIComponent(msj)).build());
+  botonWhatsApp(celdaBtn, f[3], msj, 'Enviar por WhatsApp');
 }
 
 function json(o) {
