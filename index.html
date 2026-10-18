@@ -514,6 +514,7 @@ footer .hash{font-family:Cinzel;letter-spacing:.25em;font-size:13px;color:var(--
     <p class="caps rv d1" id="dressCode" style="font-size:15px;color:var(--forest)"></p>
     <p class="lead rv d2" id="dressLong" style="margin-top:10px;font-style:normal;font-weight:500;color:var(--forest)"></p>
     <p class="lead rv d2" id="dressNote" style="margin-top:6px"></p>
+    <p class="lead rv d2" id="paletteNote" style="margin-top:18px"></p>
     <div class="swatches rv d2" id="swatches"></div>
     <div class="tip rv d3"><svg viewBox="0 0 32 32" fill="none" stroke="#5f7150" stroke-width="1.5" stroke-linecap="round"><path d="M4 26c4-1 6-4 7-8M10 26c2-3 3-6 3-10M16 26c0-4 1-8 4-11M22 26c1-3 3-5 6-6"/></svg><span id="grassTip"></span></div>
     <p class="note rv d3">Con cariño, reservamos el blanco para la novia.</p>
@@ -677,6 +678,7 @@ $("#parkingTxt").textContent = CONFIG.estacionamiento;
 
 $("#timeline").innerHTML = CONFIG.programa.map((p,i)=>`<div class="tl rv ${i%2?'d1':''}"><div class="t">${p.hora}</div><div class="dot"><svg><use href="#${p.icono}"/></svg></div><div class="w">${p.que}${p.nota?`<small>${p.nota}</small>`:""}</div></div>`).join("");
 $("#dressCode").remove(); $("#dressNote").remove(); $("#dressLong").textContent = CONFIG.vestimentaNota;
+$("#paletteNote").textContent = t("Te invitamos a llenar el día con los colores del verano.","Los invitamos a llenar el día con los colores del verano.");
 $("#swatches").innerHTML = CONFIG.paleta.map(c=>`<i style="background:${c}"></i>`).join("");
 if(!CONFIG.listaNovios) $("#regalos").remove(); else $("#giftBtn").href=CONFIG.listaNovios;
 let rsvp = CONFIG.formulario;
