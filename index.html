@@ -675,12 +675,12 @@ if(codigo && /^[a-z0-9]{3,10}$/i.test(codigo)){
   const cKey = "inv:"+codigo;
   try{ desdeCodigo = JSON.parse(localStorage.getItem(cKey)); }catch(e){}
   if(desdeCodigo){ main();   // ya lo tenía guardado: abre al tiro y actualiza para la próxima vez
-    fetch(CONFIG.rsvpEndpoint+"?c="+encodeURIComponent(codigo)).then(r=>r.json()).then(j=>{ if(j && j.ok) try{ localStorage.setItem(cKey, JSON.stringify(j)); }catch(e){} }).catch(()=>{});
+    fetch(CONFIG.rsvpEndpoint+"?cod="+encodeURIComponent(codigo)).then(r=>r.json()).then(j=>{ if(j && j.ok) try{ localStorage.setItem(cKey, JSON.stringify(j)); }catch(e){} }).catch(()=>{});
   } else {
     document.getElementById("intro").classList.add("wait");
     const listo = d => { desdeCodigo = d; document.getElementById("intro").classList.remove("wait"); main(); };
     const tope = setTimeout(()=>listo(null), 9000);
-    fetch(CONFIG.rsvpEndpoint+"?c="+encodeURIComponent(codigo)).then(r=>r.json()).then(j=>{
+    fetch(CONFIG.rsvpEndpoint+"?cod="+encodeURIComponent(codigo)).then(r=>r.json()).then(j=>{
       clearTimeout(tope);
       if(j && j.ok){ try{ localStorage.setItem(cKey, JSON.stringify(j)); }catch(e){} listo(j); } else listo(null);
     }).catch(()=>{ clearTimeout(tope); listo(null); });

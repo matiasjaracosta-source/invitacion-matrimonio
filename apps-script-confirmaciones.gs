@@ -53,7 +53,7 @@ function doPost(e) {
 
 function doGet(e) {
   const p = (e && e.parameter) || {};
-  if (p.c) return json(buscarCodigo(p.c));
+  if (p.cod) return json(buscarCodigo(p.cod));   // ("c" es un parámetro reservado de Apps Script)
   if (!p.saludo) return json({ ok: true });
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const hit = buscarFila(ss, p.t, p.saludo);
