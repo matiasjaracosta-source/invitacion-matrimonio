@@ -579,7 +579,7 @@ const CONFIG = {
   plazoConfirmacion: "6 de febrero de 2027",
   hashtag: "#MatiYJavi",
   musica: "musica.mp3",               // archivo de la canción en la misma carpeta (A Drop in the Ocean)
-  musicaInicio: 50,                   // segundo donde parte el coro
+  musicaInicio: 51,                   // segundo donde parte el coro (0:51)
   musicaVolumen: .22
 };
 
@@ -694,6 +694,8 @@ function fadeTo(v,ms=3500){ const v0=au.volume, t0=performance.now(); (function 
 function startMusic(){ if(!CONFIG.musica) return;
   const seek=()=>{ try{ au.currentTime=CONFIG.musicaInicio||0; }catch(e){} };
   if(au.readyState>=1) seek(); else au.addEventListener("loadedmetadata",seek,{once:true});
+  const fix=()=>{ if(au.currentTime<(CONFIG.musicaInicio||0)-2) seek(); };
+  au.addEventListener("playing",()=>setTimeout(fix,250),{once:true}); au.addEventListener("canplaythrough",fix,{once:true});
   au.play().then(()=>{ mb.classList.add("show","playing"); fadeTo(CONFIG.musicaVolumen); }).catch(()=>{}); }
 
 /* ================= escena dibujada ================= */
