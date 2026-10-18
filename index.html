@@ -928,10 +928,24 @@ function rSet(v){ try{ localStorage.setItem(rKey,JSON.stringify(v)); }catch(e){}
 if(CONFIG.rsvpEndpoint && personasRSVP.length){
   rsvpBtn.removeAttribute("target"); rsvpBtn.href="#confirmar";
   rsvpBtn.addEventListener("click",e=>{ e.preventDefault(); openRSVP(); });
-  if(rGet()){ rsvpBtn.textContent="Confirmación enviada ✓"; $("#rsvpAgain").hidden=false; }
+  if(rGet()) setConfirmedUI(true);
   $("#rsvpAgain").onclick=()=>openRSVP();
+  syncRSVP();
 } else if(CONFIG.formulario){ rsvpBtn.href = CONFIG.formulario; }
 else { rsvpBtn.addEventListener("click",e=>e.preventDefault()); }
+function setConfirmedUI(on){ rsvpBtn.textContent = on ? "Confirmación enviada ✓" : "Confirmar asistencia"; $("#rsvpAgain").hidden = !on; }
+/* consulta la planilla: si los novios borraron la respuesta, la invitación vuelve a quedar sin responder */
+async function syncRSVP(){
+  try{
+    const u = CONFIG.rsvpEndpoint+"?saludo="+encodeURIComponent(guest.nombre||personasRSVP[0])+"&t="+encodeURIComponent(guest.hoja||"");
+    const j = await (await fetch(u)).json(); if(!j || !j.ok || !j.encontrado) return;
+    const nn = s => String(s||"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+    if(j.confirmado){
+      rSet({ personas: personasRSVP.map(n=>{ const f=(j.personas||[]).find(p=>nn(p.nombre)===nn(n)); return { nombre:n, asiste: f ? f.asiste : null }; }) });
+      setConfirmedUI(true);
+    } else { try{ localStorage.removeItem(rKey); }catch(e){} setConfirmedUI(false); }
+  }catch(e){}
+}
 let choice=[];
 function openRSVP(){
   const prev=rGet();
@@ -960,7 +974,7 @@ $("#rfSend").onclick=async()=>{
     $("#rfDoneTxt").textContent = si ? (tot>1?"Recibimos su confirmación. ¡Nos hace muy felices celebrar con ustedes!":"Recibimos tu confirmación. ¡Nos hace muy feliz celebrar contigo!")
                                      : (tot>1?"Gracias por avisarnos. Los vamos a extrañar mucho.":"Gracias por avisarnos. Te vamos a extrañar mucho.");
     $("#rfSum").textContent = si ? `${si} DE ${tot} ${tot>1?"ASISTIRÁN":"ASISTIRÁ"}` : "";
-    rfCard.classList.add("ok"); rsvpBtn.textContent="Confirmación enviada ✓"; $("#rsvpAgain").hidden=false;
+    rfCard.classList.add("ok"); setConfirmedUI(true);
     if(si && !reduce) rain(34);
   }catch(err){ $("#rfMsg").textContent="No pudimos enviar la confirmación. Revisa tu conexión e inténtalo de nuevo."; }
   btn.disabled=false; btn.textContent="Enviar confirmación";
