@@ -568,7 +568,7 @@ const CONFIG = {
     { hora:"17:00", que:"Bienvenida",               nota:"Recibimos a nuestros invitados", icono:"i-welcome" },
     { hora:"17:30", que:"Ceremonia",                nota:"Al aire libre",                  icono:"i-ring"    },
     { hora:"18:15", que:"Inicio del cóctel campestre", nota:"", icono:"i-glass" },
-    { hora:"18:45", que:"Inicio de bocados a la parrilla", nota:"como complemento del cóctel", icono:"i-fire" },
+    { hora:"18:45", que:"Bocados a la parrilla", nota:"", icono:"i-fire" },
     { hora:"19:45", que:"Palabras y brindis",       nota:"",                               icono:"i-mic"     },
     { hora:"20:15", que:"Corte de torta",           nota:"",                               icono:"i-cake"    },
     { hora:"20:45", que:"Vals de los novios",       nota:"",                               icono:"i-waltz"   },
@@ -668,7 +668,7 @@ $("#rsvpNote").textContent = guest.cupos>0
   : t("Invitación personal, sin acompañantes adicionales.","Invitación válida solo para las personas nombradas.");
 
 $("#saveTxt").textContent = t("Agrega nuestro día a tu calendario y te lo recordaremos un día antes.","Agreguen nuestro día a su calendario y se lo recordaremos un día antes.");
-$("#dressNote").textContent = t("Telas livianas, colores de verano y zapatos cómodos para el pasto.","Telas livianas, colores de verano y zapatos cómodos para el pasto.");
+if(false) $("#dressNote").textContent = t("Telas livianas, colores de verano y zapatos cómodos para el pasto.","Telas livianas, colores de verano y zapatos cómodos para el pasto.");
 $("#grassTip").textContent = t("Celebraremos sobre pasto: te recomendamos taco ancho o plataforma.","Celebraremos sobre pasto: les recomendamos taco ancho o plataforma.");
 $("#giftMsg").textContent = t("Tu compañía es el mejor regalo que podemos recibir. Para quienes deseen tener un detalle con nosotros, hemos preparado una lista de novios para esta nueva etapa que comenzamos juntos.","Su compañía es el mejor regalo que podemos recibir. Para quienes deseen tener un detalle con nosotros, hemos preparado una lista de novios para esta nueva etapa que comenzamos juntos.");
 $("#placeLine").textContent = CONFIG.lugar.toUpperCase();
@@ -676,7 +676,7 @@ $("#mapBtn").href = CONFIG.mapa;
 $("#parkingTxt").textContent = CONFIG.estacionamiento;
 
 $("#timeline").innerHTML = CONFIG.programa.map((p,i)=>`<div class="tl rv ${i%2?'d1':''}"><div class="t">${p.hora}</div><div class="dot"><svg><use href="#${p.icono}"/></svg></div><div class="w">${p.que}${p.nota?`<small>${p.nota}</small>`:""}</div></div>`).join("");
-$("#dressCode").textContent = CONFIG.vestimenta; $("#dressLong").textContent = CONFIG.vestimentaNota;
+$("#dressCode").remove(); $("#dressNote").remove(); $("#dressLong").textContent = CONFIG.vestimentaNota;
 $("#swatches").innerHTML = CONFIG.paleta.map(c=>`<i style="background:${c}"></i>`).join("");
 if(!CONFIG.listaNovios) $("#regalos").remove(); else $("#giftBtn").href=CONFIG.listaNovios;
 let rsvp = CONFIG.formulario;
