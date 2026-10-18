@@ -634,25 +634,25 @@ footer .hash{font-family:Cinzel;letter-spacing:.25em;font-size:13px;color:var(--
 const CONFIG = {
   novio: "Mati", novia: "Javi",
   novioCompleto: "Matías", noviaCompleto: "Javiera",
-  llegada: "2027-03-06T17:00:00-03:00",     // llegada de invitados
-  fin:     "2027-03-07T00:00:00-03:00",
+  llegada: "2027-03-06T17:45:00-03:00",     // llegada de invitados
+  fin:     "2027-03-07T01:00:00-03:00",
   lugar: "Calera de Tango, Región Metropolitana",
   coordenadas: "-33.6372095,-70.8076073",   // ubicación exacta de la parcela
   get mapa(){ return "https://www.google.com/maps/search/?api=1&query="+this.coordenadas; },
   get waze(){ return "https://waze.com/ul?ll="+this.coordenadas+"&navigate=yes"; },
-  ceremonia: { hora:"17:30" },
+  ceremonia: { hora:"18:30" },
 
   estacionamiento: "Hay estacionamiento disponible en la entrada de la parcela.",
   programa: [
-    { hora:"17:00", que:"Bienvenida",               nota:"Recibimos a nuestros invitados", icono:"i-welcome" },
-    { hora:"17:30", que:"Ceremonia",                nota:"Al aire libre",                  icono:"i-ring"    },
-    { hora:"18:15", que:"Inicio del cóctel campestre", nota:"", icono:"i-glass" },
-    { hora:"18:45", que:"Bocados a la parrilla", nota:"", icono:"i-fire" },
-    { hora:"19:45", que:"Palabras y brindis",       nota:"",                               icono:"i-mic"     },
-    { hora:"20:15", que:"Corte de torta",           nota:"",                               icono:"i-cake"    },
-    { hora:"20:45", que:"Vals de los novios",       nota:"",                               icono:"i-waltz"   },
-    { hora:"21:15", que:"¡Comienza la fiesta!",     nota:"Se abre la barra",               icono:"i-music"   },
-    { hora:"23:30", que:"Despedida de los novios",  nota:"de 23:30 a 24:00 hrs",           icono:"i-moon"    }
+    { hora:"17:45", que:"Bienvenida",               nota:"Recibimos a nuestros invitados", icono:"i-welcome" },
+    { hora:"18:30", que:"Ceremonia",                nota:"Al aire libre",                  icono:"i-ring"    },
+    { hora:"19:10", que:"Inicio del cóctel campestre", nota:"", icono:"i-glass" },
+    { hora:"20:00", que:"Bocados a la parrilla", nota:"", icono:"i-fire" },
+    { hora:"20:40", que:"Palabras y brindis",       nota:"",                               icono:"i-mic"     },
+    { hora:"21:05", que:"Corte de torta",           nota:"",                               icono:"i-cake"    },
+    { hora:"21:15", que:"Vals de los novios",       nota:"",                               icono:"i-waltz"   },
+    { hora:"21:30", que:"¡Comienza la fiesta!",     nota:"Se abre la barra",               icono:"i-music"   },
+    { hora:"24:00", que:"Despedida de los novios",  nota:"La fiesta sigue hasta la 01:00 hrs", icono:"i-moon" }
   ],
   vestimenta: "Semi formal de jardín",
   vestimentaNota: "Para ellas, solo vestidos largos.",
@@ -661,7 +661,8 @@ const CONFIG = {
   rsvpEndpoint: "https://script.google.com/macros/s/AKfycbwjD5xZ1hUdd6MNANBN1ac5-dB2_BviE5l1FJdaZdx6d12r-vuUXonzeC_ifVy7PGUKmg/exec",                     // URL de la aplicación web de Apps Script (planilla)
   formulario: "",                       // respaldo: link a un formulario externo si no hay rsvpEndpoint
   formularioCampoNombre: "",          // opcional: "entry.123456789" para prellenar el nombre
-  plazoConfirmacion: "6 de febrero de 2027",
+  plazoConfirmacion: "5 de febrero de 2027",
+  plazoCierre: "2027-02-06T00:00:00-03:00",   // desde aquí ya no se puede cambiar la respuesta
   hashtag: "#MatiYJavi",
   musica: "musica.mp3",               // archivo de la canción en la misma carpeta (A Drop in the Ocean)
   musicaInicio: 51,                   // segundo donde parte el coro (0:51)
@@ -763,8 +764,8 @@ if(guest.cupos>0){ $("#seats").hidden=false; $("#seatsN").textContent=guest.cupo
 if(guest.nombres.length){ const ul=$("#namesList"); ul.hidden=false; ul.innerHTML=guest.nombres.map(n=>`<li></li>`).join(""); [...ul.children].forEach((li,i)=>li.textContent=guest.nombres[i]); }
 $("#rsvpTitle").textContent = t("¿Nos acompañas?","¿Nos acompañan?");
 $("#rsvpMsg").textContent = t(
-  `Confirma tu asistencia antes del ${CONFIG.plazoConfirmacion}. Con cariño, quienes no confirmen a tiempo no podrán ser considerados.`,
-  `Confirmen su asistencia antes del ${CONFIG.plazoConfirmacion}. Con cariño, quienes no confirmen a tiempo no podrán ser considerados.`);
+  `Confirma tu asistencia hasta el ${CONFIG.plazoConfirmacion}; hasta ese mismo día podrás modificar tu respuesta. Con cariño, quienes no confirmen a tiempo no podrán ser considerados.`,
+  `Confirmen su asistencia hasta el ${CONFIG.plazoConfirmacion}; hasta ese mismo día podrán modificar su respuesta. Con cariño, quienes no confirmen a tiempo no podrán ser considerados.`);
 $("#rsvpNote").textContent = guest.cupos>0
   ? (guest.cupos>1 ? `Reservamos ${guest.cupos} lugares para ustedes, sin acompañantes adicionales.` : "Reservamos un lugar para ti, sin acompañantes adicionales.")
   : t("Invitación personal, sin acompañantes adicionales.","Invitación válida solo para las personas nombradas.");
@@ -947,17 +948,18 @@ let lastL=performance.now(); (function lf(now){ const dt=Math.min(.05,(now-lastL
 const rsvpBtn=$("#rsvpBtn"), modal=$("#rsvpModal"), rfCard=$("#rfCard");
 const personasRSVP = guest.nombres.length ? guest.nombres : [guest.nombre || ""].filter(Boolean);
 const rKey = "rsvp:"+(guest.hoja||"")+":"+(guest.nombre||"");
+const cerrado = Date.now() >= new Date(CONFIG.plazoCierre).getTime();   // pasado el plazo, la respuesta ya no se cambia
 function rGet(){ try{ return JSON.parse(localStorage.getItem(rKey)||"null"); }catch(e){ return null; } }
 function rSet(v){ try{ localStorage.setItem(rKey,JSON.stringify(v)); }catch(e){} }
 if(CONFIG.rsvpEndpoint && personasRSVP.length){
   rsvpBtn.removeAttribute("target"); rsvpBtn.href="#confirmar";
-  rsvpBtn.addEventListener("click",e=>{ e.preventDefault(); openRSVP(); });
+  rsvpBtn.addEventListener("click",e=>{ e.preventDefault(); if(cerrado && rGet()) return; openRSVP(); });
   if(rGet()) setConfirmedUI(true);
   $("#rsvpAgain").onclick=()=>openRSVP();
   syncRSVP();
 } else if(CONFIG.formulario){ rsvpBtn.href = CONFIG.formulario; }
 else { rsvpBtn.addEventListener("click",e=>e.preventDefault()); }
-function setConfirmedUI(on){ rsvpBtn.textContent = on ? "Confirmación enviada ✓" : "Confirmar asistencia"; $("#rsvpAgain").hidden = !on; }
+function setConfirmedUI(on){ rsvpBtn.textContent = on ? "Confirmación enviada ✓" : "Confirmar asistencia"; $("#rsvpAgain").hidden = !on || cerrado; }
 /* consulta la planilla: si los novios borraron la respuesta, la invitación vuelve a quedar sin responder */
 async function syncRSVP(){
   try{
