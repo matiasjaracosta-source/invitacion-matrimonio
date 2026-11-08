@@ -267,6 +267,8 @@ h2.title{font-family:"Pinyon Script";font-weight:400;font-size:clamp(48px,12vw,7
   background:linear-gradient(135deg,#2f5a33,#1f4226);color:#f7e7bd;font-family:Cinzel;font-size:14px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;
   box-shadow:0 14px 30px -12px rgba(31,66,38,.75),inset 0 0 0 1px rgba(247,231,189,.35);transition:transform .3s,box-shadow .3s;animation:giftPulse 2.6s ease-in-out infinite}
 .btn-gift svg{width:22px;height:22px;flex:none}
+.gift-code{margin:18px auto 0;font-size:15px;line-height:1.6;letter-spacing:.04em;color:var(--ink-soft)}
+.gift-code b{font-weight:600;letter-spacing:.14em;color:#a0701c}
 .btn-gift::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,240,200,.45),transparent);transform:skewX(-20deg);animation:giftShine 3.6s ease-in-out infinite}
 .btn-gift:hover{transform:translateY(-3px) scale(1.03)}
 @keyframes giftShine{0%,55%{left:-60%}85%,100%{left:130%}}
@@ -640,6 +642,7 @@ footer .hash{font-family:Cinzel;letter-spacing:.25em;font-size:13px;color:var(--
       <div class="gift">
         <p class="lead" id="giftMsg"></p>
         <a class="btn-gift" id="giftBtn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="3" y="9" width="18" height="12" rx="1"/><path d="M3 13h18M12 9v12M12 9c-2-4-7-4-6-1s6 1 6 1zm0 0c2-4 7-4 6-1s-6 1-6 1z"/></svg>Ver lista de novios</a>
+        <p class="gift-code" id="giftCode"></p>
       </div>
     </div>
   </section>
@@ -693,7 +696,7 @@ const CONFIG = {
   novio: "Mati", novia: "Javi",
   novioCompleto: "Matías", noviaCompleto: "Javiera",
   llegada: "2027-03-06T17:45:00-03:00",     // llegada de invitados
-  fin:     "2027-03-07T00:30:00-03:00",
+  fin:     "2027-03-07T00:45:00-03:00",
   lugar: "Calera de Tango, Región Metropolitana",
   coordenadas: "-33.6372095,-70.8076073",   // ubicación exacta de la parcela
   get mapa(){ return "https://www.google.com/maps/search/?api=1&query="+this.coordenadas; },
@@ -710,12 +713,13 @@ const CONFIG = {
     { hora:"21:05", que:"Corte de torta",           nota:"",                               icono:"i-cake"    },
     { hora:"21:15", que:"Vals de los novios",       nota:"",                               icono:"i-waltz"   },
     { hora:"21:30", que:"¡Comienza la fiesta!",     nota:"Se abre la barra",               icono:"i-music"   },
-    { hora:"24:00", que:"Despedida de los novios",  nota:"La fiesta sigue hasta las 00:30 hrs", icono:"i-moon" }
+    { hora:"24:00", que:"Despedida de los novios",  nota:"La fiesta sigue hasta las 00:45 hrs", icono:"i-moon" }
   ],
   vestimenta: "Semi formal de jardín",
   vestimentaNota: "Para ellas, solo vestidos largos.",
   paleta: ["#e8735a","#f4b63f","#f59fb0","#7cbf5a","#2fa59a","#6fb3e8"],
   listaNovios: "https://www.noviosparis.cl/home/couple-catalog/8674981",
+  codigoLista: "8674981",                // código de novios Paris (sirve en la web y en tiendas)
   rsvpEndpoint: "https://script.google.com/macros/s/AKfycbwjD5xZ1hUdd6MNANBN1ac5-dB2_BviE5l1FJdaZdx6d12r-vuUXonzeC_ifVy7PGUKmg/exec",                     // URL de la aplicación web de Apps Script (planilla)
   formulario: "",                       // respaldo: link a un formulario externo si no hay rsvpEndpoint
   formularioCampoNombre: "",          // opcional: "entry.123456789" para prellenar el nombre
@@ -865,6 +869,7 @@ $("#dressCode").remove(); $("#dressNote").remove(); $("#dressLong").textContent 
 $("#paletteNote").textContent = t("Te invitamos a llenar el día con los colores del verano.","Los invitamos a llenar el día con los colores del verano.");
 $("#swatches").innerHTML = CONFIG.paleta.map(c=>`<i style="background:${c}"></i>`).join("");
 if(!CONFIG.listaNovios) $("#regalos").remove(); else $("#giftBtn").href=CONFIG.listaNovios;
+if(CONFIG.codigoLista && $("#giftCode")) $("#giftCode").innerHTML = `Código de novios Paris: <b>${CONFIG.codigoLista}</b><br>También en cualquier tienda Paris`; else if($("#giftCode")) $("#giftCode").remove();
 
 const z = d => d.toISOString().replace(/[-:]/g,"").replace(/\.\d{3}/,"");
 const calTitle = "Matrimonio "+CONFIG.novio+" & "+CONFIG.novia;
